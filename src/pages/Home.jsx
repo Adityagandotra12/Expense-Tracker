@@ -4,7 +4,7 @@
  * All state is synced with LocalStorage.
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import Dashboard from '../components/Dashboard';
 import AddTransaction from '../components/AddTransaction';
 import TransactionList from '../components/TransactionList';
@@ -21,6 +21,7 @@ import { CATEGORIES } from '../utils/constants';
 
 export default function Home() {
   const logoSrc = `${import.meta.env.BASE_URL}expense-tracker-logo.png`;
+  const transactionFormRef = useRef(null);
   const [transactions, setTransactions] = useState([]);
   const [budget, setBudget] = useState(0);
   const [darkMode, setDarkMode] = useState(false);
@@ -72,6 +73,11 @@ export default function Home() {
     saveBudget(budget);
   }, [budget, hasHydrated]);
 
+  useEffect(() => {
+    if (!editingTransaction || !transactionFormRef.current) return;
+    transactionFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [editingTransaction]);
+
   const handleSaveTransaction = (transaction) => {
     if (editingTransaction) {
       setTransactions((prev) =>
@@ -87,9 +93,13 @@ export default function Home() {
     setEditingTransaction(transaction);
   };
 
-  const handleDeleteTransaction = (id) => {
-    setTransactions((prev) => prev.filter((t) => t.id !== id));
-    if (editingTransaction?.id === id) setEditingTransaction(null);
+  const handleDeleteTransaction = (transaction) => {
+    const label = transaction.description || transaction.category;
+    const confirmed = window.confirm(`Delete "${label}" transaction?`);
+    if (!confirmed) return;
+
+    setTransactions((prev) => prev.filter((t) => t.id !== transaction.id));
+    if (editingTransaction?.id === transaction.id) setEditingTransaction(null);
   };
 
   const handleCancelEdit = () => setEditingTransaction(null);
@@ -209,7 +219,7 @@ export default function Home() {
   return (
     <div className="min-h-screen transition-colors">
       {/* Header with title, dark mode toggle, export */}
-      <header className="sticky top-0 z-10 border-b border-[var(--border-color)] bg-[var(--bg-secondary)] shadow-sm">
+      <header className="sticky top-0 z-20 border-b border-[var(--border-color)] bg-[var(--bg-primary)] shadow-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <img
@@ -323,12 +333,14 @@ export default function Home() {
           )}
         </div>
 
-        <AddTransaction
-          key={editingTransaction?.id ?? 'new-transaction'}
-          onSave={handleSaveTransaction}
-          initialTransaction={editingTransaction}
-          onCancel={handleCancelEdit}
-        />
+        <div ref={transactionFormRef} className="scroll-mt-24">
+          <AddTransaction
+            key={editingTransaction?.id ?? 'new-transaction'}
+            onSave={handleSaveTransaction}
+            initialTransaction={editingTransaction}
+            onCancel={handleCancelEdit}
+          />
+        </div>
 
         {/* Filters and Search */}
         <div className="rounded-2xl p-4 border border-[var(--border-color)] bg-[var(--bg-card)] mb-6 shadow-sm" style={{ boxShadow: 'var(--card-glow)' }}>

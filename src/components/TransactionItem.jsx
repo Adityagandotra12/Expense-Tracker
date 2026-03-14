@@ -36,7 +36,7 @@ export default function TransactionItem({ transaction, onEdit, onDelete }) {
           </button>
           <button
             type="button"
-            onClick={() => onDelete(transaction.id)}
+            onClick={() => onDelete(transaction)}
             className="px-3 py-1.5 rounded-xl text-sm font-semibold bg-[var(--expense-color)]/15 text-[var(--expense-color)] hover:bg-[var(--expense-color)]/25 transition-colors"
             aria-label="Delete transaction"
           >
