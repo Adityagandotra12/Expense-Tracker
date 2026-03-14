@@ -20,6 +20,7 @@ import {
 import { CATEGORIES } from '../utils/constants';
 
 export default function Home() {
+  const logoSrc = `${import.meta.env.BASE_URL}expense-tracker-logo.png`;
   const [transactions, setTransactions] = useState([]);
   const [budget, setBudget] = useState(0);
   const [darkMode, setDarkMode] = useState(false);
@@ -212,7 +213,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <img
-              src="/expense-tracker-logo.png"
+              src={logoSrc}
               alt="Expense Tracker logo"
               className="h-16 w-16 shrink-0 object-contain"
             />
