@@ -26,6 +26,7 @@ export default function Home() {
   const [budget, setBudget] = useState(0);
   const [darkMode, setDarkMode] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
+  const [transactionPendingDelete, setTransactionPendingDelete] = useState(null);
   const [hasHydrated, setHasHydrated] = useState(false);
 
   // Which month we're viewing (dashboard, budget, list, charts all use this)
@@ -94,15 +95,23 @@ export default function Home() {
   };
 
   const handleDeleteTransaction = (transaction) => {
-    const label = transaction.description || transaction.category;
-    const confirmed = window.confirm(`Delete "${label}" transaction?`);
-    if (!confirmed) return;
-
-    setTransactions((prev) => prev.filter((t) => t.id !== transaction.id));
-    if (editingTransaction?.id === transaction.id) setEditingTransaction(null);
+    setTransactionPendingDelete(transaction);
   };
 
   const handleCancelEdit = () => setEditingTransaction(null);
+
+  const handleConfirmDelete = () => {
+    if (!transactionPendingDelete) return;
+    setTransactions((prev) =>
+      prev.filter((t) => t.id !== transactionPendingDelete.id)
+    );
+    if (editingTransaction?.id === transactionPendingDelete.id) {
+      setEditingTransaction(null);
+    }
+    setTransactionPendingDelete(null);
+  };
+
+  const handleCancelDelete = () => setTransactionPendingDelete(null);
 
   // Transactions in the selected month only (dashboard, budget, list, pie chart use this)
   const transactionsInSelectedMonth = useMemo(
@@ -218,6 +227,35 @@ export default function Home() {
 
   return (
     <div className="min-h-screen transition-colors">
+      {transactionPendingDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 px-4">
+          <div className="w-full max-w-sm rounded-2xl border border-[var(--border-color)] bg-[var(--bg-card)] p-6 shadow-xl">
+            <h2 className="text-lg font-bold text-[var(--text-primary)]">
+              Confirm Delete
+            </h2>
+            <p className="mt-2 text-sm text-[var(--text-secondary)]">
+              Are you sure to delete the transaction
+            </p>
+            <div className="mt-5 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={handleCancelDelete}
+                className="rounded-xl border border-[var(--border-color)] px-4 py-2 text-sm font-semibold text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                className="rounded-xl bg-[var(--expense-color)] px-4 py-2 text-sm font-semibold text-white hover:opacity-95 transition-opacity"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header with title, dark mode toggle, export */}
       <header className="sticky top-0 z-20 border-b border-[var(--border-color)] bg-[var(--bg-primary)] shadow-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3">
