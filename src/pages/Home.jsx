@@ -234,7 +234,7 @@ export default function Home() {
               Confirm Delete
             </h2>
             <p className="mt-2 text-sm text-[var(--text-secondary)]">
-              Are you sure to delete the transaction
+              Are you sure to delete the transaction?
             </p>
             <div className="mt-5 flex justify-end gap-3">
               <button
