@@ -208,10 +208,14 @@ export default function Home() {
   return (
     <div className="min-h-screen transition-colors">
       {/* Header with title, dark mode toggle, export */}
-      <header className="sticky top-0 z-10 border-b border-[var(--border-color)] bg-[var(--bg-secondary)] backdrop-blur-xl shadow-sm">
+      <header className="sticky top-0 z-10 border-b border-[var(--border-color)] bg-[var(--bg-secondary)] shadow-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-[var(--accent)] via-[var(--accent-2)] to-[var(--accent-3)] shadow-md" />
+            <img
+              src="/expense-tracker-logo.png"
+              alt="Expense Tracker logo"
+              className="h-16 w-16 shrink-0 object-contain"
+            />
             <div>
               <h1 className="text-2xl font-extrabold tracking-tight">
                 <span className="bg-gradient-to-r from-[var(--accent)] via-[var(--accent-2)] to-[var(--accent-3)] bg-clip-text text-transparent">
@@ -319,6 +323,7 @@ export default function Home() {
         </div>
 
         <AddTransaction
+          key={editingTransaction?.id ?? 'new-transaction'}
           onSave={handleSaveTransaction}
           initialTransaction={editingTransaction}
           onCancel={handleCancelEdit}

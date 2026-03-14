@@ -69,7 +69,7 @@ export function getTheme() {
   try {
     const theme = localStorage.getItem(STORAGE_KEYS.THEME);
     return theme === 'dark' || theme === 'light' ? theme : null;
-  } catch (e) {
+  } catch {
     return null;
   }
 }

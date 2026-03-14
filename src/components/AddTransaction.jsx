@@ -3,7 +3,7 @@
  * Supports both create and edit modes via optional initialTransaction prop
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, TRANSACTION_TYPES } from '../utils/constants';
 
 // Categories shown depend on transaction type (income vs expense)
@@ -28,33 +28,24 @@ function createId() {
 }
 
 export default function AddTransaction({ onSave, initialTransaction = null, onCancel }) {
-  const [amount, setAmount] = useState('');
-  const [category, setCategory] = useState(EXPENSE_CATEGORIES[0]);
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
-  const [description, setDescription] = useState('');
-  const [type, setType] = useState(TRANSACTION_TYPES.EXPENSE);
+  const initialType = initialTransaction?.type ?? TRANSACTION_TYPES.EXPENSE;
+  const [amount, setAmount] = useState(initialTransaction ? String(Math.abs(initialTransaction.amount)) : '');
+  const [category, setCategory] = useState(
+    initialTransaction?.category ?? categoriesByType[initialType][0]
+  );
+  const [date, setDate] = useState(initialTransaction?.date ?? new Date().toISOString().slice(0, 10));
+  const [description, setDescription] = useState(initialTransaction?.description || '');
+  const [type, setType] = useState(initialType);
   const [error, setError] = useState('');
 
   const isEditing = !!initialTransaction;
   const categories = categoriesByType[type];
 
-  // When editing, populate form with existing transaction
-  useEffect(() => {
-    if (initialTransaction) {
-      setAmount(String(Math.abs(initialTransaction.amount)));
-      setCategory(initialTransaction.category);
-      setDate(initialTransaction.date);
-      setDescription(initialTransaction.description || '');
-      setType(initialTransaction.type);
-    }
-  }, [initialTransaction]);
-
-  // When switching type, set category to first of the new type's list (and keep valid if current exists)
-  useEffect(() => {
-    if (initialTransaction) return;
-    const list = categoriesByType[type];
-    setCategory((prev) => (list.includes(prev) ? prev : list[0]));
-  }, [type, initialTransaction]);
+  const handleTypeChange = (nextType) => {
+    const nextCategories = categoriesByType[nextType];
+    setType(nextType);
+    setCategory((prev) => (nextCategories.includes(prev) ? prev : nextCategories[0]));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -112,7 +103,7 @@ export default function AddTransaction({ onSave, initialTransaction = null, onCa
                 name="type"
                 value={TRANSACTION_TYPES.INCOME}
                 checked={type === TRANSACTION_TYPES.INCOME}
-                onChange={() => setType(TRANSACTION_TYPES.INCOME)}
+                onChange={() => handleTypeChange(TRANSACTION_TYPES.INCOME)}
                 className="w-4 h-4 accent-[var(--accent)]"
               />
               <span className="text-[var(--text-primary)]">Income</span>
@@ -123,7 +114,7 @@ export default function AddTransaction({ onSave, initialTransaction = null, onCa
                 name="type"
                 value={TRANSACTION_TYPES.EXPENSE}
                 checked={type === TRANSACTION_TYPES.EXPENSE}
-                onChange={() => setType(TRANSACTION_TYPES.EXPENSE)}
+                onChange={() => handleTypeChange(TRANSACTION_TYPES.EXPENSE)}
                 className="w-4 h-4 accent-[var(--accent)]"
               />
               <span className="text-[var(--text-primary)]">Expense</span>
